@@ -1,0 +1,85 @@
+hello word
+
+
+class Livro:
+    """Representa um livro na biblioteca."""
+    def __init__(self, titulo, autor, isbn):
+        self.titulo = titulo
+        self.autor = autor
+        self.isbn = isbn
+        self.emprestado_para = None
+        self.data_emprestimo = None
+
+    def emprestar(self, usuario):
+        """Empresta o livro para um usuário."""
+        if self.emprestado_para is None:
+            self.emprestado_para = usuario
+            self.data_emprestimo = datetime.date.today()
+            return True
+        return False
+
+    def devolver(self):
+        """Devolve o livro."""
+        if self.emprestado_para is not None:
+            self.emprestado_para = None
+            self.data_emprestimo = None
+            return True
+        return False
+
+    def __str__(self):
+        """Representação em string do livro."""
+        status = f"Emprestado para {self.emprestado_para} desde {self.data_emprestimo}" if self.emprestado_para else "Disponível"
+        return f"'{self.titulo}' por {self.autor} (ISBN: {self.isbn}) - Status: {status}"
+
+class Usuario:
+    """Representa um usuário da biblioteca."""
+    def __init__(self, nome, id_usuario):
+        self.nome = nome
+        self.id_usuario = id_usuario
+        self.livros_emprestados = []
+
+    def adicionar_livro_emprestado(self, livro):
+        self.livros_emprestados.append(livro)
+
+    def remover_livro_emprestado(self, livro):
+        if livro in self.livros_emprestados:
+            self.livros_emprestados.remove(livro)
+
+    def __str__(self):
+        """Representação em string do usuário."""
+        return f"Usuário: {self.nome} (ID: {self.id_usuario})"
+
+class Biblioteca:
+    """Gerencia livros e usuários."""
+    def __init__(self):
+        self.catalogo_livros = {} # {isbn: Livro}
+        self.registro_usuarios = {} # {id_usuario: Usuario}
+
+    def adicionar_livro(self, livro):
+        """Adiciona um novo livro ao catálogo."""
+        if livro.isbn not in self.catalogo_livros:
+            self.catalogo_livros[livro.isbn] = livro
+            print(f"Livro '{livro.titulo}' adicionado.")
+        else:
+            print(f"Erro: Livro com ISBN {livro.isbn} já existe.")
+
+    def adicionar_usuario(self, usuario):
+        """Adiciona um novo usuário ao registro."""
+        if usuario.id_usuario not in self.registro_usuarios:
+            self.registro_usuarios[usuario.id_usuario] = usuario
+            print(f"Usuário '{usuario.nome}' registrado.")
+        else:
+            print(f"Erro: Usuário com ID {usuario.id_usuario} já existe.")
+
+    def emprestar_item(self, isbn, id_usuario):
+        """Processa o empréstimo de um livro."""
+        livro = self.catalogo_livros.get(isbn)
+        usuario = self.registro_usuarios.get(id_usuario)
+
+        if livro and usuario:
+            if livro.emprestar(usuario.nome): # Passa o nome para registro no livro
+                usuario.adicionar_livro_emprestado(livro)
+                print(f"'{livro.titulo}' emprestado para '{usuario.nome}'.")
+            else:
+                print(f"'{livro.titulo}' já está emprestado.")
+        else: 
